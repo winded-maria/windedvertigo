@@ -13,6 +13,14 @@
         ],
         "rewrites": [
                     {
+                                    "source": "/harbour/feel-cards",
+                                    "destination": "https://feel-cards.vercel.app/"
+                    },
+                    {
+                                    "source": "/harbour/feel-cards/",
+                                    "destination": "https://feel-cards.vercel.app/"
+                    },
+                    {
                                     "source": "/reservoir/creaseworks",
                                     "destination": "https://creaseworks-ghandoffs-projects.vercel.app/reservoir/creaseworks"
                     },
