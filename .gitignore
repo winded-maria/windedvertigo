@@ -5,6 +5,10 @@ node_modules/
 .next/
 out/
 
+# Cloudflare Workers / OpenNext build outputs
+.open-next/
+.wrangler/
+
 # Environment variables
 .env
 .env.local

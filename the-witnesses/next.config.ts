@@ -1,6 +1,12 @@
 import type { NextConfig } from "next";
+import path from "node:path";
 
 const nextConfig: NextConfig = {
+  output: "standalone",
+  // Pin the file-tracing root to this app so the standalone output is not
+  // nested under "the-witnesses/" — the parent monorepo lockfile would
+  // otherwise make Next infer the repo root, which breaks the OpenNext bundle.
+  outputFileTracingRoot: path.join(__dirname),
   poweredByHeader: false,
   images: {
     remotePatterns: [
