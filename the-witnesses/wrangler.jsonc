@@ -1,7 +1,7 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "wv-witnesses",
-  "account_id": "097c92553b268f8360b74f625f6d980a",
+  "account_id": "8d5fa0f88ac25367eea506a106d1ce34",
   "compatibility_date": "2025-03-01",
   "compatibility_flags": ["nodejs_compat"],
   "main": ".open-next/worker.js",
