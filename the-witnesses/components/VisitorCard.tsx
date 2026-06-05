@@ -25,25 +25,23 @@ type Phase = 'arriving' | 'prompting' | 'player-input' | 'felt-sense' | 'follow-
 
 function useTypewriter(text: string, active: boolean): string {
   const [displayed, setDisplayed] = useState('');
-  const [done, setDone] = useState(false);
 
   useEffect(() => {
-    if (!active) { setDisplayed(''); setDone(false); return; }
+    // When this line is not the active phase, keep the full text on screen so
+    // earlier prompts/arrival lines stay visible instead of blanking out.
+    if (!active) { setDisplayed(text); return; }
     setDisplayed('');
-    setDone(false);
     let i = 0;
     const interval = setInterval(() => {
       i++;
       setDisplayed(text.slice(0, i));
       if (i >= text.length) {
         clearInterval(interval);
-        setDone(true);
       }
     }, 1000 / 40); // 40 chars/sec
     return () => clearInterval(interval);
   }, [text, active]);
 
-  void done;
   return displayed;
 }
 

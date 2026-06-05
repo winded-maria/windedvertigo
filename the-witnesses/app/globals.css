@@ -229,6 +229,112 @@ body::after {
   animation: fadeInUp 1s ease-out forwards;
 }
 
+/* ---- Character arrival (walks out of the house toward the viewer) ---- */
+.character-arrival {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: visible;
+  z-index: 10;
+}
+.character-walker {
+  position: absolute;
+  left: 50%;
+  top: 56%;
+  width: 32px;
+  height: 32px;
+  margin-left: -16px;
+  margin-top: -16px;
+  transform-origin: center bottom;
+  animation: walkOut 2.4s ease-out forwards;
+  will-change: top, transform;
+}
+.character-sprite {
+  display: block;
+  width: 32px;
+  height: 32px;
+  animation: spriteBob 0.48s steps(2, jump-none) infinite;
+  filter: drop-shadow(2px 3px 0 rgba(0, 0, 0, 0.45));
+}
+.door-flash {
+  position: absolute;
+  left: 53%;
+  top: 64%;
+  width: 7%;
+  height: 12%;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle, rgba(245, 240, 224, 0.85), transparent 70%);
+  opacity: 0;
+  animation: doorGlow 1s ease-out forwards;
+}
+.character-nametag {
+  position: absolute;
+  left: 50%;
+  bottom: 5%;
+  transform: translateX(-50%);
+  font-family: var(--font-display);
+  font-size: 0.6rem;
+  white-space: nowrap;
+  text-shadow: 2px 2px 0 var(--ink);
+  opacity: 0;
+  animation: tagIn 0.5s ease-out 1.7s forwards;
+}
+@keyframes walkOut {
+  0% {
+    top: 56%;
+    transform: scale(0.3);
+    opacity: 0;
+  }
+  14% {
+    opacity: 1;
+  }
+  100% {
+    top: 74%;
+    transform: scale(2.7);
+    opacity: 1;
+  }
+}
+@keyframes spriteBob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-1px);
+  }
+}
+@keyframes doorGlow {
+  0% {
+    opacity: 0;
+  }
+  25% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes tagIn {
+  to {
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .character-walker {
+    animation: none;
+    top: 74%;
+    transform: scale(2.4);
+    opacity: 1;
+  }
+  .character-sprite {
+    animation: none;
+  }
+  .character-nametag {
+    animation: none;
+    opacity: 1;
+  }
+}
+
 @keyframes cloudDrift {
   from {
     transform: translateX(0);

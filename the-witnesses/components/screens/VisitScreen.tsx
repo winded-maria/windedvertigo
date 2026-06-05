@@ -5,6 +5,7 @@ import type { GameSession, CharacterKey, Visit } from '@/lib/session';
 import { CHARACTERS } from '@/lib/characters';
 import WorldCanvas from '@/components/WorldCanvas';
 import VisitorCard from '@/components/VisitorCard';
+import CharacterArrival from '@/components/CharacterArrival';
 
 interface Props {
   session: GameSession;
@@ -77,13 +78,14 @@ export default function VisitScreen({ session, currentVisitIndex, onVisitComplet
         </div>
       </div>
 
-      {/* World canvas in a pixel frame */}
-      <div className="w-full max-w-3xl pixel-frame">
+      {/* World canvas in a pixel frame, with the arriving witness on top */}
+      <div className="relative w-full max-w-3xl pixel-frame" style={{ overflow: 'visible' }}>
         <WorldCanvas
           imageUrl={currentImage}
           isLoading={isImageLoading}
           showGhostOverlay={characterKey === 'ghost' && !currentImage}
         />
+        <CharacterArrival key={`${characterKey}-${currentVisitIndex}`} character={character} />
       </div>
 
       {/* Visitor card */}
