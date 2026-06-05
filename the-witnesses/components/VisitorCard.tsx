@@ -5,6 +5,7 @@ import type { CharacterData } from '@/lib/characters';
 import { EXPLORER_OBJECTS, interpolate } from '@/lib/characters';
 import FeltSensePicker from './FeltSensePicker';
 import GhostEraser from './GhostEraser';
+import PixelButton from './ui/PixelButton';
 
 interface Props {
   character: CharacterData;
@@ -22,7 +23,7 @@ interface Props {
 
 type Phase = 'arriving' | 'prompting' | 'player-input' | 'felt-sense' | 'follow-up' | 'exit';
 
-function useTypewriter(text: string, active: boolean, speed = 25): string {
+function useTypewriter(text: string, active: boolean): string {
   const [displayed, setDisplayed] = useState('');
   const [done, setDone] = useState(false);
 
@@ -42,6 +43,7 @@ function useTypewriter(text: string, active: boolean, speed = 25): string {
     return () => clearInterval(interval);
   }, [text, active]);
 
+  void done;
   return displayed;
 }
 
@@ -126,7 +128,6 @@ export default function VisitorCard({ character, arrivalLineIndex, playerWord, s
     });
   };
 
-  const accentStyle = { borderColor: character.accentColor };
   const accentTextStyle = { color: character.accentColor };
 
   const isTimeTraveler = character.key === 'timeTraveler';
@@ -137,24 +138,28 @@ export default function VisitorCard({ character, arrivalLineIndex, playerWord, s
   return (
     <div className="w-full max-w-2xl mx-auto">
       <div
-        className="bg-[#0a0a1a] border-l-4 p-6 rounded-r"
-        style={accentStyle}
+        className="pixel-panel p-6"
+        style={{
+          background: '#0d0d20',
+          borderLeftWidth: 6,
+          borderLeftColor: character.accentColor,
+        }}
       >
         {/* Character name */}
-        <div className="text-xs font-mono uppercase tracking-widest mb-4 opacity-60" style={accentTextStyle}>
+        <div className="font-display text-[0.6rem] uppercase tracking-wider mb-4" style={accentTextStyle}>
           {character.name}
         </div>
 
         {/* Arrival line */}
         {(phase === 'arriving' || arrivalDone) && (
-          <p className="italic text-white/60 text-sm mb-4 font-serif whitespace-pre-wrap min-h-[2rem]">
+          <p className="pixel-prose-sm text-white/55 mb-4 whitespace-pre-wrap min-h-[2rem]">
             {displayedArrival}
           </p>
         )}
 
         {/* Main prompt */}
         {(phase === 'prompting' || promptDone) && (
-          <p className="text-white font-mono text-sm mb-4 whitespace-pre-wrap min-h-[2rem]">
+          <p className="font-body text-xl text-white mb-4 whitespace-pre-wrap min-h-[2rem] leading-snug">
             {displayedPrompt}
           </p>
         )}
@@ -165,22 +170,22 @@ export default function VisitorCard({ character, arrivalLineIndex, playerWord, s
             {isRipple ? (
               <>
                 <div>
-                  <label className="block text-xs text-white/50 font-mono mb-1">Some of us…</label>
+                  <label className="block font-display text-[0.5rem] text-white/50 uppercase tracking-wider mb-2">some of us…</label>
                   <textarea
                     ref={textareaRef}
                     value={playerText}
                     onChange={(e) => setPlayerText(e.target.value)}
-                    className="w-full bg-white/5 border border-white/20 text-white font-mono text-sm p-3 rounded resize-none focus:outline-none focus:border-white/50"
+                    className="pixel-input resize-none"
                     rows={3}
                     placeholder="what some of us needed…"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs text-white/50 font-mono mb-1">Others…</label>
+                  <label className="block font-display text-[0.5rem] text-white/50 uppercase tracking-wider mb-2">others…</label>
                   <textarea
                     value={secondText}
                     onChange={(e) => setSecondText(e.target.value)}
-                    className="w-full bg-white/5 border border-white/20 text-white font-mono text-sm p-3 rounded resize-none focus:outline-none focus:border-white/50"
+                    className="pixel-input resize-none"
                     rows={3}
                     placeholder="what others needed…"
                   />
@@ -188,12 +193,12 @@ export default function VisitorCard({ character, arrivalLineIndex, playerWord, s
               </>
             ) : isTimeTraveler ? (
               <div className="flex items-start gap-2">
-                <span className="text-white/60 font-mono text-sm pt-3 whitespace-nowrap">By 2036, it had…</span>
+                <span className="font-body text-lg text-white/60 pt-3 whitespace-nowrap">by 2036, it had…</span>
                 <textarea
                   ref={textareaRef}
                   value={playerText}
                   onChange={(e) => setPlayerText(e.target.value)}
-                  className="flex-1 bg-white/5 border border-white/20 text-white font-mono text-sm p-3 rounded resize-none focus:outline-none focus:border-white/50"
+                  className="pixel-input resize-none flex-1"
                   rows={3}
                   placeholder="…completed the sentence"
                 />
@@ -203,23 +208,20 @@ export default function VisitorCard({ character, arrivalLineIndex, playerWord, s
                 ref={textareaRef}
                 value={playerText}
                 onChange={(e) => setPlayerText(e.target.value)}
-                className="w-full bg-white/5 border border-white/20 text-white font-mono text-sm p-3 rounded resize-none focus:outline-none focus:border-white/50"
+                className="pixel-input resize-none"
                 rows={4}
-                placeholder={isGhost ? "what you took away to make space…" : ""}
+                placeholder={isGhost ? 'what you took away to make space…' : ''}
               />
             )}
 
             {isExplorer && (
-              <div className="flex gap-2 mt-2">
+              <div className="flex flex-wrap gap-2 mt-2">
                 {EXPLORER_OBJECTS.map((obj) => (
                   <button
                     key={obj}
                     onClick={() => setObjectChoice(obj)}
-                    className={`px-3 py-1.5 border font-mono text-xs rounded transition-all ${
-                      objectChoice === obj
-                        ? 'border-white bg-white text-black'
-                        : 'border-white/30 text-white/70 hover:border-white/60'
-                    }`}
+                    className="pixel-option"
+                    data-selected={objectChoice === obj}
                   >
                     a {obj}
                   </button>
@@ -228,52 +230,43 @@ export default function VisitorCard({ character, arrivalLineIndex, playerWord, s
             )}
 
             {isGhost && (
-              <GhostEraser
-                selectedElement={erasedElement}
-                onSelect={setErasedElement}
-              />
+              <GhostEraser selectedElement={erasedElement} onSelect={setErasedElement} />
             )}
 
-            <button
+            <PixelButton
               onClick={handleSubmitPlayerText}
               disabled={!playerText.trim() || (isExplorer && !objectChoice) || (isGhost && !erasedElement)}
-              className="mt-2 px-4 py-2 border border-white/30 text-white/70 font-mono text-sm hover:border-white hover:text-white transition-all disabled:opacity-30 disabled:cursor-not-allowed rounded"
+              className="mt-2"
             >
-              continue →
-            </button>
+              continue
+            </PixelButton>
           </div>
         )}
 
         {/* Felt sense picker */}
         {phase === 'felt-sense' && (
-          <FeltSensePicker
-            options={character.feltSenseOptions}
-            onSelect={handleFeltSense}
-          />
+          <FeltSensePicker options={character.feltSenseOptions} onSelect={handleFeltSense} />
         )}
 
         {/* Follow-up */}
         {(phase === 'follow-up' || followUpDone) && phase !== 'player-input' && phase !== 'felt-sense' && (
-          <p className="text-white/80 font-mono text-sm whitespace-pre-wrap mt-4 min-h-[2rem]">
+          <p className="font-body text-xl text-white/80 whitespace-pre-wrap mt-4 min-h-[2rem] leading-snug">
             {displayedFollowUp}
           </p>
         )}
 
         {/* Exit line */}
-        {(phase === 'exit') && (
-          <p className="italic text-white/40 text-sm mt-4 font-serif whitespace-pre-wrap min-h-[2rem]">
+        {phase === 'exit' && (
+          <p className="pixel-prose-sm text-white/45 mt-4 whitespace-pre-wrap min-h-[2rem]">
             {displayedExit}
           </p>
         )}
 
         {/* Continue button after exit */}
         {exitDone && (
-          <button
-            onClick={handleContinue}
-            className="mt-6 px-6 py-2 border border-white/30 text-white/70 font-mono text-sm hover:border-white hover:text-white transition-all rounded"
-          >
-            next →
-          </button>
+          <PixelButton onClick={handleContinue} className="mt-6">
+            next
+          </PixelButton>
         )}
       </div>
     </div>

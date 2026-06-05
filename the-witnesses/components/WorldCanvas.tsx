@@ -102,8 +102,8 @@ export default function WorldCanvas({ imageUrl, isLoading, erasedElements, onEle
       {isLoading && (
         <div className="absolute inset-0 flex items-center justify-center bg-black/60">
           <div className="text-center text-white">
-            <div className="text-4xl mb-2 animate-pulse">◈</div>
-            <div className="text-sm font-mono opacity-70">the world is shifting…</div>
+            <div className="text-4xl mb-3 animate-pulse pixelated">◈</div>
+            <div className="font-display text-[0.6rem] opacity-70">the world is shifting…</div>
           </div>
         </div>
       )}

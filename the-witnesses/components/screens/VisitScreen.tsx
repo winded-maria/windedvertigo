@@ -58,26 +58,33 @@ export default function VisitScreen({ session, currentVisitIndex, onVisitComplet
   const totalVisits = session.visitOrder.length;
 
   return (
-    <div className="min-h-screen bg-[#0a0a1a] flex flex-col items-center py-8 px-4 gap-8">
-      {/* Progress */}
-      <div className="w-full max-w-2xl flex items-center gap-2">
-        <span className="text-xs text-white/30 font-mono">
-          visitor {visitNumber} of {totalVisits}
+    <div className="min-h-screen bg-[#0a0a1a] flex flex-col items-center py-6 px-4 gap-6">
+      {/* Progress HUD — pixel hearts/blocks */}
+      <div className="w-full max-w-2xl flex items-center gap-3">
+        <span className="font-display text-[0.55rem] text-white/45 whitespace-nowrap">
+          {visitNumber}/{totalVisits}
         </span>
-        <div className="flex-1 h-px bg-white/10">
-          <div
-            className="h-full bg-white/30 transition-all duration-500"
-            style={{ width: `${(visitNumber / totalVisits) * 100}%` }}
-          />
+        <div className="flex-1 flex gap-1.5" aria-label={`visitor ${visitNumber} of ${totalVisits}`}>
+          {Array.from({ length: totalVisits }).map((_, i) => (
+            <div
+              key={i}
+              className="flex-1 h-3 border-2 border-white/20"
+              style={{
+                background: i < visitNumber ? 'rgba(240,180,64,0.85)' : 'transparent',
+              }}
+            />
+          ))}
         </div>
       </div>
 
-      {/* World canvas */}
-      <WorldCanvas
-        imageUrl={currentImage}
-        isLoading={isImageLoading}
-        showGhostOverlay={characterKey === 'ghost' && !currentImage}
-      />
+      {/* World canvas in a pixel frame */}
+      <div className="w-full max-w-3xl pixel-frame">
+        <WorldCanvas
+          imageUrl={currentImage}
+          isLoading={isImageLoading}
+          showGhostOverlay={characterKey === 'ghost' && !currentImage}
+        />
+      </div>
 
       {/* Visitor card */}
       <VisitorCard

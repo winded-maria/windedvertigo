@@ -3,20 +3,240 @@
 :root {
   --background: #0a0a1a;
   --foreground: #f5f0e0;
+  --ink: #2e1a14;
+  --cream: #f5f0e0;
+  --accent: #f0b440;
+  --font-display: "Press Start 2P", monospace;
+  --font-body: "VT323", "Courier New", monospace;
 }
 
 * {
   box-sizing: border-box;
 }
 
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
   min-height: 100vh;
+  font-family: var(--font-body);
+}
+
+/* Subtle CRT scanlines over the dark UI (kept faint for readability) */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 50;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.14) 0px,
+    rgba(0, 0, 0, 0.14) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  mix-blend-mode: multiply;
 }
 
 /* Pixelated image rendering */
 .pixelated {
   image-rendering: pixelated;
   image-rendering: crisp-edges;
+}
+
+/* ---- Typography helpers ---- */
+.font-display {
+  font-family: var(--font-display);
+}
+.font-body {
+  font-family: var(--font-body);
+}
+/* VT323 is small by default — bump it for readable body copy */
+.pixel-prose {
+  font-family: var(--font-body);
+  font-size: 1.4rem;
+  line-height: 1.45;
+}
+.pixel-prose-sm {
+  font-family: var(--font-body);
+  font-size: 1.2rem;
+  line-height: 1.45;
+}
+
+/* ---- Pixel button ---- */
+.pixel-btn {
+  font-family: var(--font-display);
+  font-size: 0.7rem;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.7em;
+  padding: 16px 20px;
+  min-height: 52px;
+  background: var(--cream);
+  color: var(--ink);
+  border: 3px solid var(--ink);
+  box-shadow: 4px 4px 0 0 var(--ink);
+  cursor: pointer;
+  text-transform: lowercase;
+  transition: transform 0.05s ease, box-shadow 0.05s ease, background 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  user-select: none;
+}
+.pixel-btn:hover:not(:disabled) {
+  background: #fffdf5;
+}
+.pixel-btn:active:not(:disabled) {
+  transform: translate(4px, 4px);
+  box-shadow: 0 0 0 0 var(--ink);
+}
+.pixel-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  box-shadow: 2px 2px 0 0 var(--ink);
+}
+
+/* Ghost / secondary variant (dark with cream border) */
+.pixel-btn--ghost {
+  background: transparent;
+  color: var(--cream);
+  border-color: var(--cream);
+  box-shadow: 4px 4px 0 0 rgba(245, 240, 224, 0.45);
+}
+.pixel-btn--ghost:hover:not(:disabled) {
+  background: rgba(245, 240, 224, 0.1);
+}
+.pixel-btn--ghost:active:not(:disabled) {
+  box-shadow: 0 0 0 0;
+}
+
+/* ---- Square arrow button (d-pad style) ---- */
+.pixel-arrow {
+  font-family: var(--font-display);
+  width: 56px;
+  height: 56px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--cream);
+  color: var(--ink);
+  border: 3px solid var(--ink);
+  box-shadow: 4px 4px 0 0 var(--ink);
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: transform 0.05s ease, box-shadow 0.05s ease;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+.pixel-arrow:active:not(:disabled) {
+  transform: translate(4px, 4px);
+  box-shadow: 0 0 0 0 var(--ink);
+}
+.pixel-arrow:disabled {
+  opacity: 0.25;
+  cursor: not-allowed;
+}
+
+/* ---- Pixel panel / frame ---- */
+.pixel-panel {
+  border: 3px solid var(--ink);
+  box-shadow: 6px 6px 0 0 rgba(0, 0, 0, 0.55);
+}
+.pixel-frame {
+  border: 4px solid var(--cream);
+  box-shadow: 0 0 0 3px var(--ink), 8px 8px 0 3px rgba(0, 0, 0, 0.6);
+  image-rendering: pixelated;
+}
+
+/* ---- Pixel inputs ---- */
+.pixel-input {
+  font-family: var(--font-body);
+  font-size: 1.25rem;
+  background: rgba(245, 240, 224, 0.06);
+  color: var(--cream);
+  border: 3px solid rgba(245, 240, 224, 0.4);
+  padding: 12px 14px;
+  outline: none;
+  width: 100%;
+}
+.pixel-input:focus {
+  border-color: var(--cream);
+  background: rgba(245, 240, 224, 0.1);
+}
+.pixel-input::placeholder {
+  color: rgba(245, 240, 224, 0.3);
+}
+
+/* ---- Pixel option (selectable chips / list buttons) ---- */
+.pixel-option {
+  font-family: var(--font-body);
+  font-size: 1.15rem;
+  background: rgba(245, 240, 224, 0.04);
+  color: rgba(245, 240, 224, 0.85);
+  border: 3px solid rgba(245, 240, 224, 0.3);
+  padding: 10px 14px;
+  cursor: pointer;
+  transition: all 0.12s ease;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+.pixel-option:hover:not(:disabled) {
+  border-color: rgba(245, 240, 224, 0.7);
+  color: #fff;
+}
+.pixel-option[data-selected="true"] {
+  background: var(--cream);
+  color: var(--ink);
+  border-color: var(--ink);
+  box-shadow: 3px 3px 0 0 var(--ink);
+}
+
+/* ---- Animations ---- */
+@keyframes pixelBlink {
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+.pixel-caret::after {
+  content: "_";
+  animation: pixelBlink 1s steps(1) infinite;
+  margin-left: 2px;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-fade-in {
+  animation: fadeInUp 1s ease-out forwards;
+}
+
+@keyframes cloudDrift {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(130vw);
+  }
+}
+.cloud-drift {
+  animation: cloudDrift linear infinite;
 }

@@ -177,16 +177,28 @@ export default function GameApp({ initialSession, sessionId }: Props) {
       return <ArrivalScreen onNext={() => goTo('letter')} />;
 
     case 'letter':
-      return <LetterScreen recipientName={recipientName} onNext={() => goTo('permissions')} />;
+      return (
+        <LetterScreen
+          recipientName={recipientName}
+          onNext={() => goTo('permissions')}
+          onBack={() => goTo('arrival')}
+        />
+      );
 
     case 'permissions':
-      return <PermissionsScreen onNext={() => goTo('seed')} />;
+      return (
+        <PermissionsScreen
+          onNext={() => goTo('seed')}
+          onBack={() => goTo('letter')}
+        />
+      );
 
     case 'seed':
       return (
         <SeedScreen
           recipientName={recipientName}
           onSubmit={handleSeedSubmit}
+          onBack={() => goTo('permissions')}
           isLoading={isLoading}
         />
       );
