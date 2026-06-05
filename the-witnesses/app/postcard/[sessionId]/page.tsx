@@ -1,44 +1,69 @@
-import { Metadata } from 'next';
-import { notFound } from 'next/navigation';
+'use client';
+
+import { useEffect, useState } from 'react';
+import { useParams } from 'next/navigation';
+import type { GameSession } from '@/lib/session';
 import { dbSessionToGameSession } from '@/lib/session';
+import { loadLocalSession } from '@/lib/local-session';
 import PostcardScreen from '@/components/screens/PostcardScreen';
 
-interface Props {
-  params: Promise<{ sessionId: string }>;
-}
+type State = 'loading' | 'ready' | 'missing';
 
-async function fetchSession(sessionId: string) {
-  // In demo mode (or server-side from postcard), fetch via our own API route
-  // which handles both demo store and Supabase
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? 'http://localhost:3020';
-  const res = await fetch(`${baseUrl}/api/session/${sessionId}/read`, {
-    cache: 'no-store',
-  });
-  if (!res.ok) return null;
-  return res.json();
-}
+export default function PostcardPage() {
+  const params = useParams();
+  const sessionId = params?.sessionId as string;
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { sessionId } = await params;
-  const data = await fetchSession(sessionId);
-  const seedName = data?.seed_name ?? 'a seed';
-  const seedPhrase = data?.seed_phrase ?? 'something alive';
-  return {
-    title: `${seedName} — The Witnesses`,
-    description: `A postcard from a small game by winded.vertigo. "${seedPhrase}"`,
-    openGraph: {
-      title: `${seedName} — The Witnesses`,
-      description: `A postcard from a small game by winded.vertigo.`,
-    },
-  };
-}
+  const [session, setSession] = useState<GameSession | null>(null);
+  const [state, setState] = useState<State>('loading');
 
-export default async function PostcardPage({ params }: Props) {
-  const { sessionId } = await params;
-  const data = await fetchSession(sessionId);
+  useEffect(() => {
+    if (!sessionId) return;
 
-  if (!data) notFound();
+    // Prefer the locally-persisted session (demo mode), then fall back to the
+    // server read (Supabase mode / shared links opened on the same device).
+    const local = loadLocalSession(sessionId);
+    if (local && local.seedPhrase) {
+      setSession(local);
+      setState('ready');
+      return;
+    }
 
-  const session = dbSessionToGameSession(data);
+    fetch(`/api/session/${sessionId}/read`)
+      .then((r) => {
+        if (!r.ok) throw new Error('not found');
+        return r.json();
+      })
+      .then((data) => {
+        setSession(dbSessionToGameSession(data));
+        setState('ready');
+      })
+      .catch(() => setState('missing'));
+  }, [sessionId]);
+
+  if (state === 'loading') {
+    return (
+      <div className="min-h-screen bg-[#0a0a1a] flex items-center justify-center">
+        <div className="font-display text-[0.7rem] text-white/40 animate-pulse">loading…</div>
+      </div>
+    );
+  }
+
+  if (state === 'missing' || !session) {
+    return (
+      <div className="min-h-screen bg-[#0a0a1a] flex flex-col items-center justify-center gap-6 p-6 text-center">
+        <p className="font-display text-[0.8rem] text-white/70 leading-relaxed">
+          this postcard isn&apos;t<br />on this device.
+        </p>
+        <p className="pixel-prose-sm text-white/40 max-w-xs">
+          Postcards live in the browser that played them.
+        </p>
+        <button className="pixel-btn" onClick={() => (window.location.href = '/')}>
+          <span>start a new one</span>
+          <span aria-hidden>▶</span>
+        </button>
+      </div>
+    );
+  }
+
   return <PostcardScreen session={session} />;
 }

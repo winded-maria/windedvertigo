@@ -1,12 +1,12 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
-import type { GameSession, Visit, CharacterKey } from '@/lib/session';
+import { useParams, useRouter } from 'next/navigation';
+import type { GameSession, Visit } from '@/lib/session';
 import { dbSessionToGameSession } from '@/lib/session';
+import { loadLocalSession, saveLocalSession } from '@/lib/local-session';
 import VisitScreen from '@/components/screens/VisitScreen';
 import SeedNamingScreen from '@/components/screens/SeedNamingScreen';
-import { useRouter } from 'next/navigation';
 
 export default function PlayPage() {
   const params = useParams();
@@ -19,11 +19,19 @@ export default function PlayPage() {
   const [screen, setScreen] = useState<'visit' | 'seed-naming' | 'loading'>('loading');
   const [isLoading, setIsLoading] = useState(false);
 
-  // Load session from API (server reads Supabase via our PATCH/GET approach)
+  // Load session: prefer the locally-persisted copy (demo mode), then fall
+  // back to the server read (Supabase mode / shared links).
   useEffect(() => {
     if (!sessionId) return;
-    // Fetch session data directly from Supabase via a server action substitute
-    // We use the public-safe route
+
+    const local = loadLocalSession(sessionId);
+    if (local && local.visitOrder.length > 0) {
+      setSession(local);
+      setCurrentVisitIndex(local.visits.length);
+      setScreen('visit');
+      return;
+    }
+
     fetch(`/api/session/${sessionId}/read`)
       .then((r) => {
         if (!r.ok) throw new Error('Session not found');
@@ -36,8 +44,6 @@ export default function PlayPage() {
         setScreen('visit');
       })
       .catch(() => {
-        // Session might have been created client-side and passed via state
-        // Fall back to loading indicator
         router.push('/');
       });
   }, [sessionId, router]);
@@ -82,6 +88,7 @@ export default function PlayPage() {
     const newVisits = [...session.visits, updatedVisit];
     const updatedSession = { ...session, visits: newVisits };
     setSession(updatedSession);
+    saveLocalSession(updatedSession);
 
     const nextIndex = currentVisitIndex + 1;
     if (nextIndex >= session.visitOrder.length) {
@@ -99,6 +106,9 @@ export default function PlayPage() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ seedName }),
     }).catch(console.error);
+    const updatedSession = { ...session, seedName };
+    setSession(updatedSession);
+    saveLocalSession(updatedSession);
     setIsLoading(false);
     router.push(`/postcard/${session.id}`);
   };
@@ -106,7 +116,7 @@ export default function PlayPage() {
   if (screen === 'loading' || !session) {
     return (
       <div className="min-h-screen bg-[#0a0a1a] flex items-center justify-center">
-        <div className="text-white/40 font-mono text-sm animate-pulse">loading…</div>
+        <div className="font-display text-[0.7rem] text-white/40 animate-pulse">loading…</div>
       </div>
     );
   }

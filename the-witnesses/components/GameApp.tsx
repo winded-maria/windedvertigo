@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import type { GameSession, GameScreen, Visit, CharacterKey } from '@/lib/session';
+import { saveLocalSession } from '@/lib/local-session';
 import ArrivalScreen from './screens/ArrivalScreen';
 import LetterScreen from './screens/LetterScreen';
 import PermissionsScreen from './screens/PermissionsScreen';
@@ -72,6 +73,10 @@ export default function GameApp({ initialSession, sessionId }: Props) {
       setCurrentVisitIndex(0);
       setIsLoading(false);
 
+      // Persist client-side so the /play route can read it without a server
+      // round-trip (the demo store does not survive between worker isolates).
+      saveLocalSession(newSession);
+
       // Navigate to play page
       router.push(`/play/${id}`);
 
@@ -90,7 +95,11 @@ export default function GameApp({ initialSession, sessionId }: Props) {
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ seedImageUrl: imageUrl }),
             });
-            setSession((prev) => prev ? { ...prev, seedImageUrl: imageUrl } : prev);
+            setSession((prev) => {
+              const updated = prev ? { ...prev, seedImageUrl: imageUrl } : prev;
+              if (updated) saveLocalSession(updated);
+              return updated;
+            });
           }
         })
         .catch(console.error)
